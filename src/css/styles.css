@@ -17,4 +17,19 @@ body {
   padding: 8px;
   max-width: 320px;
   margin-bottom: 16px;
+  border-radius: 10px;
+}
+
+ul{
+  list-style: none;
+}
+
+img {
+width: 80px;
+height: 40px;
+}
+
+.country-info{
+  font-family: Roboto;
+  font-size: 15px;
 }
