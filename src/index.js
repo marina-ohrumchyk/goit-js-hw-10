@@ -1,24 +1,21 @@
 import './css/styles.css';
 import Notiflix from 'notiflix';
 import debounce from 'lodash.debounce';
+import fetchCountries from './fetchCountries';
 
 const DEBOUNCE_DELAY = 300;
 const debounce = require('lodash.debounce');
 const searchBox = document.getElementById('search-box');
+const countryList = document.querySelector('.country-list');
+const countryInfo = document.querySelector('.country-info');
 
 searchBox.addEventListener('input', debounce(onInputChange, DEBOUNCE_DELAY));
-
-function fetchCountries(name) {
-  const ENDPOINT = `https://restcountries.com/v3.1/name/${name}`;
-  return fetch(
-    `${ENDPOINT}?fields=name,capital,population,flags,languages`
-  ).then(res => res.json());
-}
 
 function onInputChange(e) {
   e.preventDefault();
   let name = searchBox.value.trim();
   if (name !== '') {
+    inpitClear();
     fetchCountries(name)
       .then(data => {
         if (data.status === 404) {
@@ -31,44 +28,56 @@ function onInputChange(e) {
           updateCountryList(createCountryList(data));
         } else if (data.length === 1) {
           updateCountryInfo(createMarkup(data[0]));
-          document.querySelector('.country-list').innerHTML = '';
+          countryList.innerHTML = '';
         }
       })
       .catch(onError);
   } else {
-    document.querySelector('.country-info').innerHTML = '';
+    countryInfo.innerHTML = '';
   }
 }
+
 function createMarkup({ flags, name, capital, languages, population }) {
   let languagesMarkup = Object.values(languages);
+
   return `
-    <img class="flag-svg" src="${flags.svg}">
-    <h2 class="country-title">${name.official}</h2>
-    <h3 class="country-capital">Capital: ${capital}</h3>
-   <h3 class="country-languages">Languages: ${languagesMarkup}</h3>
-    <h3 class="country-population">Population: ${population}</h3>
-    `;
+  <img class="flag-svg" src="${flags.svg}">
+  <h2 class="country-title">${name.official}</h2>
+  <h3 class="country-capital">Capital: ${capital}</h3>
+ <h3 class="country-languages">Languages: ${languagesMarkup}</h3>
+  <h3 class="country-population">Population: ${population}</h3>
+  `;
 }
+
 function createCountryList(countries) {
   let countryListMarkup = '';
 
   for (let country of countries) {
     countryListMarkup += ` <li class="country-list-item">
-        <img class="flag-svg" src="${country.flags.svg}">
-        <span class="country-title">${country.name.official}</span>
-        </li>`;
+      <img class="flag-svg" src="${country.flags.svg}">
+      <span class="country-title">${country.name.official}</span>
+      </li>`;
   }
+
   return `
-    ${countryListMarkup}
-    `;
+  ${countryListMarkup}
+  `;
 }
+
 function updateCountryInfo(markup) {
-  document.querySelector('.country-info').innerHTML = markup;
+  countryInfo.innerHTML = markup;
 }
+
 function updateCountryList(markup) {
-  document.querySelector('.country-list').innerHTML = markup;
+  countryList.innerHTML = markup;
 }
+
 function onError(err) {
   console.error(err);
   Notiflix.Notify.failure('Oops, there is no country with that name');
+}
+
+function inpitClear() {
+  countryList.innerHTML = '';
+  countryInfo.innerHTML = '';
 }
